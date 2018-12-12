@@ -84,10 +84,25 @@ abstract class Models extends Mysql
             return $ret;
         }else{
             $this->reset();
-            return false;
+            return null;
         }
     }
 
+    public function load($id){
+        $this->where($this->pk,$id)->get();
+    }
+
+    public function save(){
+        if(isset($this->{$this->pk}) && !empty($this->{$this->pk})){
+            $this->buildQuery('update');
+        }else{
+            $this->buildQuery('insert');
+        }
+
+        $this->query($this->sql);
+        $this->{$this->pk} = $this->last_id();
+        return true;
+    }
 
     protected function reset(){
        $this->$sql = '';
@@ -117,10 +132,55 @@ abstract class Models extends Mysql
     }
 
 
+    protected function buildInsertQuery(){
+        $columns = $this->getDataColumns('data');
+        $this->sql = "INSERT INTO {$this->table} SET ";
+        $cond=[];
+        foreach($columns as $k=>$v){
+            $cond[]="{$k} = '{$v}'";
+        }
+
+        $this->sql .=implode(', ', $cond);
+    }
+
+    protected function buildUpdateQuery(){
+        $columns = $this->getDataColumns('data');
+        $this->sql = "UPDATE INTO {$this->table} SET ";
+        $cond=[];
+        foreach($columns as $k=>$v){
+            $cond[]="{$k} = '{$v}'";
+        }
+
+        $this->sql .= implode(', ', $cond);
+        $this->sql .=" WHERE{$this->pk} = '{$this->{$this->pk}}' ";
+    }
+
+
+    protected function getDataColumns($type='keys'){
+        $all = get_class_vars(get_class($this));
+        $vars = get_object_vars($this);
+
+        $diff = array_diff($vars,$all);
+        if($type == 'data'){
+            return $diff;
+        }else{
+            return array_keys($diff);
+        }
+    }
+
+
+
     protected function buildQuery($mode){
         switch ($mode){
             case 'select' :
                 $this->buildSelectQuery();
+                break;
+            case 'insert':
+                $this->buildInsertQuery();
+                break;
+
+            case 'update':
+                $this->buildUpdateQuery();
                 break;
 
             default:
