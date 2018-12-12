@@ -95,12 +95,16 @@ abstract class Models extends Mysql
     public function save(){
         if(isset($this->{$this->pk}) && !empty($this->{$this->pk})){
             $this->buildQuery('update');
+            $flg = 0;
         }else{
             $this->buildQuery('insert');
+            $flg=1;
         }
 
         $this->query($this->sql);
-        $this->{$this->pk} = $this->last_id();
+        if($flg == 1) {
+            $this->{$this->pk} = $this->last_id();
+        }
         return true;
     }
 
