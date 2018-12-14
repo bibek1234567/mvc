@@ -1,10 +1,12 @@
 <?php
 $setting = [
 
-    'url'=>'http://localhost/mvc',
+    'url'=>'http://localhost:3000/mvc',
     'db_name'=>'',
     'db_user'=>'',
     'db_password'=>'',
     'db_host'=>'',
-    'timezone'=>'Asia/Kathmandu'
+    'timezone'=>'Asia/Kathmandu',
+    'default_controller'=>'home'
+
 ];

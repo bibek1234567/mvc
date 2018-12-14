@@ -143,12 +143,12 @@ abstract class Models extends Mysql
     }
 
     protected function reset(){
-       $this->$sql = '';
-       $this->$select = '*';
-        $this-> $conditions = null;
-        $this-> $order = null;
-        $this-> $offset = null;
-        $this-> $limit = null;
+        $this->sql = '';
+        $this->select = '*';
+        $this->conditions = null;
+        $this->order = null;
+        $this->offset = null;
+        $this->limit = null;
     }
 
     protected function buildSelectQuery(){
@@ -208,7 +208,7 @@ abstract class Models extends Mysql
     {
         $this->sql = "DELETE FROM {$this->table} WHERE {$this->pk}= {$this->{$this->pk}}";
 
-
+    }
         protected
         function getDataColumns($type = 'keys')
         {
@@ -223,7 +223,7 @@ abstract class Models extends Mysql
             }
         }
 
-    }
+
 
     public  function related($class_name, $fk, $realtion){
         $this->related = compact('class_name', 'fk','relation');
