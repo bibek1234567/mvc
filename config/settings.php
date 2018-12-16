@@ -7,6 +7,7 @@ $setting = [
     'db_password'=>'',
     'db_host'=>'',
     'timezone'=>'Asia/Kathmandu',
-    'default_controller'=>'home'
+    'default_controller'=>'home',
+    'debug'=> true
 
 ];

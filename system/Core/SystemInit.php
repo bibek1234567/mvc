@@ -2,11 +2,31 @@
 
 namespace System\Core;
 
+use System\Exceptions\ControllerFileNotFoundException;
+use System\Exceptions\FileNotFoundException;
+use System\Exceptions\MethodNotFoundException;
+use System\Exceptions\NotControllerException;
 
 class SystemInit
 {
-  public function start(){
-      $url_parts = $this->getUrlParts();
+
+    public function __construct()
+    {
+        date_default_timezone_set(config('timezone'));
+    }
+
+    public function start(){
+        try {
+            $url_parts = $this->getUrlParts();
+            $this->loadController($url_parts);
+        }
+        catch (FileNotFoundException $e){
+            echo $e->getMessage();
+        }
+        catch (\Exception $e){
+            echo $e->getMessage();
+            dump($e->getTrace());
+        }
 
   }
 
@@ -41,5 +61,45 @@ class SystemInit
       }
 
       return $ret;
+  }
+
+  private function loadController($url_parts)
+  {
+      $debug = config('debug');
+      $ctrlName = ucfirst($url_parts['controller'] . 'controller');
+      if (is_file('apps/Controllers/' . $ctrlName . '.php')) {
+          $className = "Apps\Controllers\\" . $ctrlName;
+          $classObj = new $className;
+          if ($classObj instanceof Controllers) {
+              if (method_exists($classObj, $url_parts['method'])) {
+                  if (is_null($url_parts['argument'])) {
+                      $classObj->{$url_parts['method']}();
+                  } else {
+                      $classObj->{$url_parts['method']}($url_parts['argument']);
+                  }
+              }
+              else {
+                  if ($debug) {
+                      throw new MethodNotFoundException("Method '{$url_parts['method']}' not found in the class {$className}.");
+                  } else {
+                      throw new FileNotFoundException("sorry! page not found.");
+                  }
+              }
+          }
+          else {
+              if ($debug) {
+                  throw new NotControllerException("class '{$className}' must inherit 'System\Core\Controllers' class.");
+              } else {
+                  throw new FileNotFoundException("sorry! page not found.");
+              }
+          }
+      }
+      else {
+          if ($debug) {
+              throw new ControllerFileNotFoundException("'{$ctrlName}.php' file not found inside inside 'apps/Controller'.");
+          } else {
+              throw new FileNotFoundException("sorry! page not found.");
+          }
+      }
   }
 }
